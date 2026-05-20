@@ -116,6 +116,24 @@ If `mean_image.npy` is missing, `DataSource.py` recomputes it from the training 
 
 The main implementation is in `workspace/models/PoseNet.py`.
 
+### InceptionV1 Backbone
+
+PoseNet reuses the InceptionV1 / GoogLeNet feature extractor. The backbone begins with convolution and pooling layers, then stacks Inception blocks from `3a` to `5b`. Each Inception block combines multiple branches, including `1x1`, `3x3`, `5x5`, and pooling projection paths, then concatenates their feature maps along the channel dimension.
+
+![Figure 3: InceptionV1 architecture](assets/figure-3-inceptionv1.png)
+
+### PoseNet Architecture
+
+PoseNet modifies the InceptionV1 backbone for camera relocalization. Instead of using the original image classification output, the network adds pose regression heads that predict translation and orientation:
+
+- Intermediate head after Inception `4a`.
+- Intermediate head after Inception `4d`.
+- Final head after Inception `5b`.
+
+During training, all three heads contribute to the loss. During evaluation, only the final head is used for prediction.
+
+![Figure 4: PoseNet architecture](assets/figure-4-posenet.png)
+
 Key modules:
 
 - `InceptionBlock`: GoogLeNet-style multi-branch convolution block.
