@@ -1,0 +1,70 @@
+# Python cache and bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Packaging and build artifacts
+build/
+dist/
+*.egg-info/
+
+# Test, lint, and coverage caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE and OS files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Weights & Biases local runs
+wandb/
+workspace/wandb/
+
+# Datasets
+workspace/data/datasets/*
+!workspace/data/datasets/readme.txt
+
+# Model checkpoints and exported models
+checkpoints/
+workspace/checkpoints/
+*.pth
+*.pt
+*.ckpt
+*.onnx
+
+# Large pretrained weights
+workspace/pretrained_models/
+*.pickle
+*.pkl
+
+# Generated NumPy arrays
+*.npy
+*.npz
+
+# Local experiment outputs
+runs/
+outputs/
+results/
+artifacts/
+
+# Keep source images and docs trackable by default.
+!training plot.png
+!Description.pdf
