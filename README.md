@@ -1,18 +1,18 @@
 # Camera Pose Regression with PoseNet
 
-本项目实现了一个基于 PoseNet 的 6-DoF camera pose regression 模型。模型以单张 RGB 图像为输入，直接回归相机在三维空间中的位置 `xyz` 和姿态四元数 `wpqr`。
+This project implements a PoseNet-based 6-DoF camera pose regression model. Given a single RGB image, the model directly regresses the camera translation `xyz` and orientation quaternion `wpqr`.
 
-实验使用 Cambridge Landmarks 数据集中的 `KingsCollege` 场景，并以 InceptionV1 / GoogLeNet 风格网络作为 PoseNet 主干。
+The experiment uses the `KingsCollege` scene from the Cambridge Landmarks dataset and builds PoseNet on top of an InceptionV1 / GoogLeNet-style backbone.
 
-## 项目亮点
+## Highlights
 
-- 使用 PyTorch 搭建 PoseNet 网络结构。
-- 支持加载 `places-googlenet.pickle` 预训练权重初始化 backbone。
-- 使用三个 pose regression heads 进行中间监督和最终位姿回归。
-- 支持训练、checkpoint 保存、测试评估和 ONNX 导出。
-- 包含 `KingsCollege` 数据集、训练结果曲线和 Netron 网络结构可视化结果。
+- Implements PoseNet in PyTorch.
+- Supports initialization from `places-googlenet.pickle` pretrained GoogLeNet weights.
+- Uses three pose regression heads for intermediate supervision and final pose prediction.
+- Includes training, checkpoint saving, evaluation, and ONNX export scripts.
+- Provides the `KingsCollege` dataset, a training loss plot, and a Netron visualization output.
 
-## 项目结构
+## Project Structure
 
 ```text
 Camera-Pose-Regression-with-PoseNet/
@@ -50,31 +50,33 @@ Camera-Pose-Regression-with-PoseNet/
 |       |-- run-*/
 ```
 
-### 目录说明
+### Directory Overview
 
-| 路径 | 说明 |
+| Path | Description |
 | --- | --- |
-| `workspace/train.py` | 训练入口，负责数据加载、模型训练、W&B 记录和 checkpoint 保存。 |
-| `workspace/test.py` | 测试入口，加载指定 epoch 的 checkpoint 并计算位置误差和姿态误差。 |
-| `workspace/netron.py` | 将 PoseNet 导出为 ONNX，方便使用 Netron 查看模型结构。 |
-| `workspace/models/PoseNet.py` | PoseNet 主体实现，包含 Inception block、回归 heads 和损失函数。 |
-| `workspace/data/DataSource.py` | KingsCollege 数据读取与图像预处理逻辑。 |
-| `workspace/data/datasets/KingsCollege/` | Cambridge Landmarks `KingsCollege` 数据集。 |
-| `workspace/pretrained_models/` | InceptionV1 / GoogLeNet 预训练权重。 |
-| `workspace/checkpoints/` | 训练过程中保存的 `.pth` 模型权重。 |
-| `workspace/wandb/` | Weights & Biases 本地实验日志。 |
-| `training plot.png` | 训练损失曲线。 |
-| `Description.pdf` | 项目说明或作业要求文档。 |
+| `workspace/train.py` | Training entry point. Handles data loading, model training, W&B logging, and checkpoint saving. |
+| `workspace/test.py` | Evaluation entry point. Loads a selected epoch checkpoint and reports translation and orientation errors. |
+| `workspace/netron.py` | Exports PoseNet to ONNX for visualization in Netron. |
+| `workspace/models/PoseNet.py` | Main PoseNet implementation, including Inception blocks, pose heads, and loss function. |
+| `workspace/data/DataSource.py` | Dataset reader and image preprocessing pipeline for KingsCollege. |
+| `workspace/data/datasets/KingsCollege/` | Cambridge Landmarks `KingsCollege` dataset. |
+| `workspace/pretrained_models/` | InceptionV1 / GoogLeNet pretrained weights. |
+| `workspace/checkpoints/` | Saved `.pth` model checkpoints. |
+| `workspace/wandb/` | Local Weights & Biases experiment logs. |
+| `training plot.png` | Training loss curve. |
+| `Description.pdf` | Project description or assignment specification. |
 
-## 环境要求
+## Environment
 
-建议使用 Python 3.9。核心依赖如下：
+Python 3.9 is recommended. Core dependencies:
 
 ```bash
 pip install torch==2.2.2 torchvision==0.17.2 numpy==1.23.5 pillow==11.1.0 wandb==0.19.5 onnx==1.17.0
 ```
 
-如果只想在本地记录 W&B 日志，可以设置离线模式：
+To keep W&B logging local, enable offline mode.
+
+PowerShell:
 
 ```powershell
 $env:WANDB_MODE="offline"
@@ -86,41 +88,43 @@ Linux / macOS:
 export WANDB_MODE=offline
 ```
 
-## 数据集
+## Dataset
 
-项目默认读取以下路径的数据：
+By default, the project expects the dataset at:
 
 ```text
 workspace/data/datasets/KingsCollege/
 ```
 
-其中关键文件包括：
+Important files:
 
-- `dataset_train.txt`：训练集图片路径和位姿标签。
-- `dataset_test.txt`：测试集图片路径和位姿标签。
-- `mean_image.npy`：训练图像均值，用于预处理。
-- `seq1/` 到 `seq8/`：图片序列。
-- `videos/`：原始视频文件。
+- `dataset_train.txt`: training image paths and pose labels.
+- `dataset_test.txt`: testing image paths and pose labels.
+- `mean_image.npy`: mean training image used during preprocessing.
+- `seq1/` to `seq8/`: image sequences.
+- `videos/`: original video files.
 
-每条位姿标签格式为：
+Each pose label follows this format:
 
 ```text
 filename tx ty tz qw qx qy qz
 ```
 
-如果 `mean_image.npy` 不存在，`DataSource.py` 会根据训练图像重新计算并保存。
+If `mean_image.npy` is missing, `DataSource.py` recomputes it from the training images and saves it automatically.
 
-## 模型结构
+## Model
 
-`workspace/models/PoseNet.py` 中的主要模块：
+The main implementation is in `workspace/models/PoseNet.py`.
 
-- `InceptionBlock`：GoogLeNet 风格的多分支卷积模块。
-- `PoseNet`：完整位姿回归网络，训练模式下输出三个回归 head。
-- `LossHeader`：最终位姿回归 head。
-- `LossHeader2`：中间辅助监督 head。
-- `PoseLoss`：组合位置 MSE 和四元数 MSE 的加权损失。
+Key modules:
 
-训练阶段模型输出：
+- `InceptionBlock`: GoogLeNet-style multi-branch convolution block.
+- `PoseNet`: full camera pose regression network with three regression heads during training.
+- `LossHeader`: final pose regression head.
+- `LossHeader2`: auxiliary intermediate regression head.
+- `PoseLoss`: weighted combination of translation MSE and quaternion MSE.
+
+Training mode outputs:
 
 ```text
 loss1_xyz, loss1_wpqr,
@@ -128,29 +132,29 @@ loss2_xyz, loss2_wpqr,
 loss3_xyz, loss3_wpqr
 ```
 
-测试阶段模型输出：
+Evaluation mode outputs:
 
 ```text
 xyz, wpqr
 ```
 
-## 训练
+## Training
 
-进入工作目录：
+Enter the workspace directory:
 
 ```bash
 cd workspace
 ```
 
-使用默认参数训练：
+Run training with default arguments:
 
 ```bash
 python train.py
 ```
 
-默认训练参数：
+Default training arguments:
 
-| 参数 | 默认值 |
+| Argument | Default |
 | --- | --- |
 | `epochs` | `200` |
 | `batch_size` | `75` |
@@ -158,85 +162,85 @@ python train.py
 | `save_freq` | `20` |
 | `data_dir` | `data/datasets/KingsCollege/` |
 
-也可以显式指定参数：
+You can also pass the arguments explicitly:
 
 ```bash
 python train.py --epochs 200 --batch_size 75 --learning_rate 0.0001 --save_freq 20 --data_dir data/datasets/KingsCollege/
 ```
 
-训练得到的 checkpoint 会保存到：
+Checkpoints are saved to:
 
 ```text
 workspace/checkpoints/
 ```
 
-## 测试
+## Evaluation
 
-使用默认的第 180 个 epoch checkpoint 测试：
+Evaluate the default epoch 180 checkpoint:
 
 ```bash
 cd workspace
 python test.py --epoch 180 --batch_size 75
 ```
 
-测试脚本会输出每张测试图像的：
+The evaluation script prints, for each test image:
 
-- ground truth pose
+- ground-truth pose
 - predicted pose
-- position error，单位为 meter
-- orientation error，单位为 degree
+- position error in meters
+- orientation error in degrees
 
-当前 README 记录的参考结果：
+Reference result recorded for the current checkpoint:
 
-| 指标 | 结果 |
+| Metric | Result |
 | --- | ---: |
 | Median position error | `3.5984 m` |
 | Median orientation error | `2.2383 degrees` |
 
-## ONNX 导出与可视化
+## ONNX Export and Visualization
 
-重新导出 ONNX：
+Export the model to ONNX:
 
 ```bash
 cd workspace
 python netron.py
 ```
 
-导出结果：
+ONNX output:
 
 ```text
 workspace/posenet.onnx
 ```
 
-Netron 可视化图片：
+Netron visualization:
 
 ```text
 workspace/posenet.png
 ```
 
-## 结果展示
+## Results
 
-训练损失曲线：
+Training loss curve:
 
 ![Training plot](training%20plot.png)
 
-## 版本管理建议
+## Version Control Notes
 
-仓库已经包含数据集、checkpoint、ONNX 和 W&B 日志等大文件。新增的 `.gitignore` 会忽略这些生成物和本地缓存，后续建议只把核心代码、README、配置文件和必要的小型结果图提交到 Git。
+This repository contains large generated files such as datasets, checkpoints, exported ONNX models, pretrained weights, and W&B logs. The `.gitignore` file excludes these artifacts so future commits can focus on source code, documentation, configuration files, and lightweight result images.
 
-如果需要保留模型权重或数据集版本，建议使用以下方式之一：
+For sharing datasets or model weights, consider using one of the following:
 
 - Git LFS
-- 云盘或对象存储
-- 单独的 release 附件
-- 在 README 中提供下载链接和放置路径
+- Cloud storage
+- Release attachments
+- A documented download link with the expected local path
 
-## 注意事项
+## Notes
 
-- `workspace/test.py` 虽然提供了 `--data_dir` 参数，但当前内部实际使用的是固定路径 `data/datasets/KingsCollege/`。
-- `workspace/models/PoseNet.py` 默认从 `pretrained_models/places-googlenet.pickle` 加载权重，因此运行脚本时通常需要先进入 `workspace/` 目录。
-- 如果 checkpoint 来自不可信来源，加载 `.pth` 文件前需要注意 PyTorch 反序列化安全风险。
-- 数据集和模型权重文件较大，不建议直接提交到普通 Git 仓库。
+- `workspace/test.py` exposes a `--data_dir` argument, but the current implementation still uses the fixed path `data/datasets/KingsCollege/` internally.
+- `workspace/models/PoseNet.py` loads `pretrained_models/places-googlenet.pickle` by default, so scripts should normally be run from inside `workspace/`.
+- Loading `.pth` files from untrusted sources can be unsafe because PyTorch checkpoints use Python serialization.
+- Dataset and model weight files are large and should not be committed to a regular Git repository unless Git LFS or another artifact strategy is used.
 
 ## Reference
 
