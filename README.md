@@ -38,12 +38,6 @@ Camera-Pose-Regression-with-PoseNet/
 |   |   |-- datasets/
 |   |       |-- readme.txt
 |   |       |-- KingsCollege/
-|   |           |-- dataset_train.txt
-|   |           |-- dataset_test.txt
-|   |           |-- mean_image.npy
-|   |           |-- reconstruction.nvm
-|   |           |-- seq1/ ... seq8/
-|   |           |-- videos/
 |   |-- pretrained_models/
 |   |   |-- places-googlenet.pickle
 |   |-- checkpoints/
@@ -243,24 +237,6 @@ workspace/posenet.png
 Training loss curve:
 
 ![Training plot](training%20plot.png)
-
-## Version Control Notes
-
-This repository contains large generated files such as datasets, checkpoints, exported ONNX models, pretrained weights, and W&B logs. The `.gitignore` file excludes these artifacts so future commits can focus on source code, documentation, configuration files, and lightweight result images.
-
-For sharing datasets or model weights, consider using one of the following:
-
-- Git LFS
-- Cloud storage
-- Release attachments
-- A documented download link with the expected local path
-
-## Notes
-
-- `workspace/test.py` exposes a `--data_dir` argument, but the current implementation still uses the fixed path `data/datasets/KingsCollege/` internally.
-- `workspace/models/PoseNet.py` loads `pretrained_models/places-googlenet.pickle` by default, so scripts should normally be run from inside `workspace/`.
-- Loading `.pth` files from untrusted sources can be unsafe because PyTorch checkpoints use Python serialization.
-- Dataset and model weight files are large and should not be committed to a regular Git repository unless Git LFS or another artifact strategy is used.
 
 ## Reference
 
