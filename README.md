@@ -4,6 +4,8 @@ This project implements a PoseNet-based 6-DoF camera pose regression model. Give
 
 The experiment uses the `KingsCollege` scene from the Cambridge Landmarks dataset and builds PoseNet on top of an InceptionV1 / GoogLeNet-style backbone.
 
+![Description](assets/description.png)
+
 ## Highlights
 
 - Implements PoseNet in PyTorch.
